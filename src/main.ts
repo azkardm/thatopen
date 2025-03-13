@@ -1,6 +1,7 @@
 // Import
 import * as OBC from "@thatopen/components";
 import * as OBCF from "@thatopen/components-front";
+import * as THREE from "three";
 
 const container = document.getElementById("container")!;
 
@@ -17,6 +18,7 @@ const world = worlds.create<
 world.scene = new OBC.SimpleScene(components);
 world.renderer = new OBC.SimpleRenderer(components, container);
 world.camera = new OBC.SimpleCamera(components);
+
 
 components.init();
 
@@ -60,18 +62,37 @@ const highlighter = components.get(OBCF.Highlighter);
 highlighter.setup({ world });
 
 // fungsi highlight by expressid
-function highlightByExpressID(expressID) {
+function highlightByExpressID(expressID,x, y, z, targetx, targety, targetz) {
+  // world.camera.controls.enabled = false;
+  world.camera.controls.setLookAt(x, y, z, targetx, targety, targetz);
+  // world.camera.three.updateMatrixWorld();
+  console.log(world.camera.three.position);
   const fragmap = model.getFragmentMap([expressID])
-  highlighter.highlightByID("select", fragmap);  
+  highlighter.highlightByID("select", fragmap);
+  // world.camera.controls.enabled = true;
+
 }
 
-// ambil property dari highlighter
-highlighter.events.select.onHighlight.add(async (fragmentIdMap) => {
-  // console.log(fragmentIdMap);
-  const expressID = [...Object.values(fragmentIdMap)[0]][0]
-  const prop = await model.getProperties(expressID)
-  console.log(prop)
+// function updateCameraPosition() {
+  //   console.log("Kamera di:", world.camera.three.position);
+  //   console.log("Zoom di:", world.camera.three.position.length());
+  // }
+  
+  // ambil property dari highlighter
+  highlighter.events.select.onHighlight.add(async (fragmentIdMap) => {
+    // console.log(fragmentIdMap);
+    const expressID = [...Object.values(fragmentIdMap)[0]][0];
+  const prop = await model.getProperties(expressID);
+  console.log(prop);
+  console.log(world.camera.three.position);
+  const target = new THREE.Vector3()
+  console.log(world.camera.controls.getTarget(target));
+
 });
 
 
-highlightByExpressID(1225);
+// console.log(world.camera.three.position);
+// highlight bagian dengan expressid 1225
+highlightByExpressID(1225, 50, 50, 50, 0, 0, 0);
+
+// setInterval(updateCameraPosition, 5000);
